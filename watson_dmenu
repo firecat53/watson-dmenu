@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Watson start/stop/status dmenu script.
 
 Add dmenu formatting options and default terminal if desired to
@@ -10,6 +10,7 @@ Add dmenu formatting options and default terminal if desired to
 See the README for additional configuration options.
 
 """
+import configparser
 import itertools
 import locale
 import os
@@ -17,10 +18,6 @@ import shlex
 import sys
 from os.path import expanduser
 from subprocess import Popen, PIPE, STDOUT
-try:
-    import configparser as configparser
-except ImportError:
-    import ConfigParser as configparser
 
 ENV = os.environ.copy()
 ENC = locale.getpreferredencoding()
