@@ -99,8 +99,8 @@ def run():
     options = ("start", "stop", "status", "restart")
     sel = get_selection(options)
     if sel == "start":
-        projects = run_watson(["projects"]).split()
-        tags = ["<done with tags>"] + run_watson(["tags"]).split()
+        projects = run_watson(["projects"]).split("\n")
+        tags = ["<done with tags>"] + run_watson(["tags"]).split("\n")
         project = get_selection(projects, "Project")
         tag = get_selection(tags, "Tag")
         tag = ["+{}".format(tag)] if tag != "<done with tags>" else ""
