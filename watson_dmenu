@@ -12,6 +12,7 @@ See the README for additional configuration options.
 """
 import configparser
 import itertools
+import json
 import locale
 import os
 import shlex
@@ -96,12 +97,18 @@ def run_watson(options):
 
 
 def run():
-    options = ("start", "stop", "status", "restart")
     prompt = run_watson(["status"])
     if prompt == "No project started.":
         prompt = "Watson"
+        old = json.loads(run_watson(["log", "-j"]))[-1]
+        options = ("1 - start",
+                   "2 - stop",
+                   "3 - status",
+                   "4 - restart ({}, {})".format(old['project'], old['tags']))
+    else:
+        options = ("1 - start", "2 - stop", "3 - status")
     sel = get_selection(options, prompt)
-    if sel == "start":
+    if sel == "1 - start":
         projects = run_watson(["projects"]).split("\n")
         tags = ["<done with tags>"] + run_watson(["tags"]).split("\n")
         project = get_selection(projects, "Project")
@@ -118,13 +125,13 @@ def run():
             cli += tag
         res = run_watson(cli)
         get_selection([res])
-    elif sel == "stop":
+    elif sel == "2 - stop":
         res = run_watson(["stop"])
         get_selection([res])
-    elif sel == "status":
+    elif sel == "3 - status":
         res = run_watson(["status"])
         get_selection([res])
-    elif sel == "restart":
+    elif sel.startswith("4 - restart"):
         res = run_watson(["restart"])
         get_selection([res])
     else:
