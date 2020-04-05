@@ -96,44 +96,59 @@ def run_watson(options):
     return res.decode(ENC).strip()
 
 
+def start():
+    projects = run_watson(["projects"]).split("\n")
+    tags = ["<done with tags>"] + run_watson(["tags"]).split("\n")
+    project = get_selection(projects, "Project")
+    tag = get_selection(tags, "Tag")
+    tag = ["+{}".format(tag)] if tag != "<done with tags>" else ""
+    while tag:
+        new_tag = get_selection(tags, "Tag")
+        if new_tag != "<done with tags>":
+            tag += ["+{}".format(new_tag)]
+        else:
+            break
+    cli = ["start"] + [project]
+    if tag:
+        cli += tag
+    return cli
+
+
 def run():
     prompt = run_watson(["status"])
     if prompt == "No project started.":
         prompt = "Watson"
         old = json.loads(run_watson(["log", "-j"]))[-1]
-        options = ("1 - start",
-                   "2 - stop",
-                   "3 - status",
-                   "4 - restart ({}, {})".format(old['project'], old['tags']))
+        options = ("1 - restart ({}, {})".format(old['project'], old['tags']),
+                   "2 - start new",
+                   "3 - show weekly summary report",
+                   "4 - show weekly aggregate",
+                   "5 - show log")
     else:
-        options = ("1 - start", "2 - stop", "3 - status")
+        options = ("1 - stop",
+                   "2 - start new (stops existing)",
+                   "3 - show weekly summary report",
+                   "4 - show weekly aggregate",
+                   "5 - show log")
     sel = get_selection(options, prompt)
-    if sel == "1 - start":
-        projects = run_watson(["projects"]).split("\n")
-        tags = ["<done with tags>"] + run_watson(["tags"]).split("\n")
-        project = get_selection(projects, "Project")
-        tag = get_selection(tags, "Tag")
-        tag = ["+{}".format(tag)] if tag != "<done with tags>" else ""
-        while tag:
-            new_tag = get_selection(tags, "Tag")
-            if new_tag != "<done with tags>":
-                tag += ["+{}".format(new_tag)]
-            else:
-                break
-        cli = ["start"] + [project]
-        if tag:
-            cli += tag
-        res = run_watson(cli)
+    if "- start" in sel:
+        res = run_watson([start()])
         get_selection([res])
-    elif sel == "2 - stop":
+    elif "- stop" in sel:
         res = run_watson(["stop"])
         get_selection([res])
-    elif sel == "3 - status":
-        res = run_watson(["status"])
-        get_selection([res])
-    elif sel.startswith("4 - restart"):
+    elif "- restart" in sel:
         res = run_watson(["restart"])
         get_selection([res])
+    elif "- show log" in sel:
+        res = run_watson(["log"])
+        get_selection(res.split("\n"))
+    elif "- show weekly summary report" in sel:
+        res = run_watson(["report"])
+        get_selection(res.split("\n"))
+    elif "- show weekly aggregate" in sel:
+        res = run_watson(["aggregate"])
+        get_selection(res.split("\n"))
     else:
         sys.exit()
 
