@@ -51,10 +51,7 @@ def dmenu_cmd(num_lines, prompt=""):
             dmenu_command = command[0]
             dmenu_args = command[1:]
             del args_dict["dmenu_command"]
-        if "p" in args_dict and prompt == "Watson":
-            prompt = args_dict["p"]
-            del args_dict["p"]
-        elif "p" in args_dict:
+        if "p" in args_dict:
             del args_dict["p"]
         if "rofi" in dmenu_command:
             lines = "-i -dmenu -lines"

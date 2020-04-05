@@ -1,6 +1,6 @@
 ## Watson-dmenu
 
-A dmenu script to start, stop and view status of
+A dmenu script to start, stop and view default report, aggregate or logs of
 [Watson](http://tailordev.github.io/Watson/) time-tracked projects.
 
 - Copy or symlink the script to your bin folder. `watson` should be in your
@@ -11,10 +11,10 @@ A dmenu script to start, stop and view status of
 
 ```ini
 [dmenu]
-fn = -*-terminus-medium-*-*-*-16-*-*-*-*-*-*-*
 # dmenu_command = /usr/bin/dmenu
-# # Note that dmenu_command can contain arguments as well like `rofi -width 30`
-# # Rofi and dmenu are set to case insensitive by default `-i`
+# dmenu_command = /usr/bin/rofi -width 30 -theme watson
+# Rofi and dmenu are set to case insensitive by default `-i`
+# fn = -*-terminus-medium-*-*-*-16-*-*-*-*-*-*-*
 # fn = font string
 # nb = normal background (name, #RGB, or #RRGGBB)
 # nf = normal foreground
@@ -22,5 +22,4 @@ fn = -*-terminus-medium-*-*-*-16-*-*-*-*-*-*-*
 # sf = selected foreground
 # b =  (just set to empty value and menu will appear at the bottom
 # m = number of monitor to display on
-# p = Custom Prompt
 ```
