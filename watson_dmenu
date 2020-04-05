@@ -92,12 +92,15 @@ def run_watson(options):
     """
     cli = ["watson"] + options
     res = Popen(cli, stdout=PIPE, stderr=STDOUT, env=ENV).communicate()[0]
-    return res.decode(ENC)
+    return res.decode(ENC).strip()
 
 
 def run():
     options = ("start", "stop", "status", "restart")
-    sel = get_selection(options)
+    prompt = run_watson(["status"])
+    if prompt == "No project started.":
+        prompt = "Watson"
+    sel = get_selection(options, prompt)
     if sel == "start":
         projects = run_watson(["projects"]).split("\n")
         tags = ["<done with tags>"] + run_watson(["tags"]).split("\n")
