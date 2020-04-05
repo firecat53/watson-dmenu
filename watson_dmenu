@@ -96,8 +96,10 @@ def run_watson(options):
     return res.decode(ENC).strip()
 
 
-def start():
+def start(prompt):
     """Gets project and tags to start Watson with.
+
+    Args - prompt: if 'Watson', no project running.
 
     """
     projects = run_watson(["projects"]).split("\n")
@@ -114,6 +116,13 @@ def start():
     cli = ["start"] + [project]
     if tag:
         cli += tag
+    if prompt != "Watson":
+        sel = get_selection(["Yes", "No"], "Stop existing project?")
+        if sel == "Yes":
+            run_watson(["config", "options.stop_on_start", "True"])
+        else:
+            get_selection([], "New project not started")
+            sys.exit()
     return cli
 
 
@@ -133,15 +142,15 @@ def run():
                    "5 - show log")
     else:
         options = ("1 - stop",
-                   "2 - start new (stops existing)",
+                   "2 - start new",
                    "",
                    "3 - show weekly summary report",
                    "4 - show weekly aggregate",
                    "5 - show log")
     sel = get_selection(options, prompt)
     if "- start" in sel:
-        res = run_watson(start())
-        get_selection([res])
+        res = run_watson(start(prompt))
+        get_selection(res.split("\n"))
     elif "- stop" in sel:
         res = run_watson(["stop"])
         get_selection([res])
