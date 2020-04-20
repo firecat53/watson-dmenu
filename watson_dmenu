@@ -130,8 +130,13 @@ def run():
     prompt = run_watson(["status"])
     if prompt == "No project started.":
         prompt = "Watson"
-        old = json.loads(run_watson(["log", "-j"]))[-1]
-        options = ("1 - restart ({}, {})".format(old['project'], old['tags']),
+        old = json.loads(run_watson(["log", "-aj"]))
+        if old:
+            old = old[-1]
+            opt1 = "1 - restart ({}, {})".format(old['project'], old['tags'])
+        else:
+            opt1 = "1 - start new (no existing projects)"
+        options = (opt1,
                    "2 - start new",
                    "",
                    "3 - show weekly summary report",
