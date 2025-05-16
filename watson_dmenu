@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 """Watson start/stop/status dmenu script.
 
-Add dmenu formatting options and default terminal if desired to
-~/.config/watson/config
-
-    [dmenu]
-    dmenu_command = rofi -font "DejaVu Sans Mono 14" -width 60
-
 See the README for additional configuration options.
 
 """
+
 import configparser
 import itertools
 import json
@@ -18,7 +13,7 @@ import os
 import shlex
 import sys
 from os.path import expanduser
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import run
 
 ENV = os.environ.copy()
 ENC = locale.getpreferredencoding()
@@ -38,7 +33,7 @@ def dmenu_cmd(num_lines, prompt=""):
     conf = configparser.ConfigParser()
     conf.read(expanduser("~/.config/watson/config"))
     try:
-        args = conf.items('dmenu')
+        args = conf.items("dmenu")
     except configparser.NoSectionError:
         conf = False
     if not conf:
@@ -72,10 +67,14 @@ def get_selection(options, prompt="Watson"):
     Returns: selection (string)
 
     """
-    inp_bytes = "\n".join(options).encode(ENC)
-    sel = Popen(dmenu_cmd(len(options), prompt=prompt),
-                stdin=PIPE,
-                stdout=PIPE).communicate(input=inp_bytes)[0].decode(ENC)
+    inp = "\n".join(options)
+    sel = run(
+        dmenu_cmd(len(options), prompt=prompt),
+        check=False,
+        capture_output=True,
+        encoding=ENC,
+        input=inp,
+    ).stdout
     if not sel.rstrip():
         sys.exit()
     return sel.rstrip()
@@ -89,8 +88,10 @@ def run_watson(options):
 
     """
     cli = ["watson"] + options
-    res = Popen(cli, stdout=PIPE, stderr=STDOUT, env=ENV).communicate()[0]
-    return res.decode(ENC).strip()
+    res = run(
+        cli, check=False, capture_output=True, encoding=ENC, env=ENV
+    ).stdout
+    return res.strip()
 
 
 def start(prompt):
@@ -103,11 +104,11 @@ def start(prompt):
     tags = ["<done with tags>"] + run_watson(["tags"]).split("\n")
     project = get_selection(projects, "Project")
     tag = get_selection(tags, "Tag")
-    tag = ["+{}".format(tag)] if tag != "<done with tags>" else ""
+    tag = [f"+{tag}"] if tag != "<done with tags>" else ""
     while tag:
         new_tag = get_selection(tags, "Tag")
         if new_tag != "<done with tags>":
-            tag += ["+{}".format(new_tag)]
+            tag += [f"+{new_tag}"]
         else:
             break
     cli = ["start"] + [project]
@@ -123,32 +124,34 @@ def start(prompt):
     return cli
 
 
-def run():
-    """Main script entrypoint
-
-    """
+def main():
+    """Main script entrypoint"""
     prompt = run_watson(["status"])
     if prompt == "No project started.":
         prompt = "Watson"
         old = json.loads(run_watson(["log", "-aj"]))
         if old:
             old = old[-1]
-            opt1 = "1 - restart ({}, {})".format(old['project'], old['tags'])
+            opt1 = f"1 - restart ({old['project']}, {old['tags']})"
         else:
             opt1 = "1 - start new (no existing projects)"
-        options = (opt1,
-                   "2 - start new",
-                   "",
-                   "3 - show weekly summary report",
-                   "4 - show weekly aggregate",
-                   "5 - show log")
+        options = (
+            opt1,
+            "2 - start new",
+            "",
+            "3 - show weekly summary report",
+            "4 - show weekly aggregate",
+            "5 - show log",
+        )
     else:
-        options = ("1 - stop",
-                   "2 - start new",
-                   "",
-                   "3 - show weekly summary report",
-                   "4 - show weekly aggregate",
-                   "5 - show log")
+        options = (
+            "1 - stop",
+            "2 - start new",
+            "",
+            "3 - show weekly summary report",
+            "4 - show weekly aggregate",
+            "5 - show log",
+        )
     sel = get_selection(options, prompt)
     if "- start" in sel:
         res = run_watson(start(prompt))
@@ -172,5 +175,5 @@ def run():
         sys.exit()
 
 
-if __name__ == '__main__':
-    run()
+if __name__ == "__main__":
+    main()
