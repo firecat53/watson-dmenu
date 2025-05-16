@@ -1,0 +1,8 @@
+*.pyc
+*.egg
+*.egg-info
+.envrc
+.direnv/
+build
+dist
+urlscan/_version.py
