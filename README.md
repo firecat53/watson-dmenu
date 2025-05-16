@@ -9,3 +9,5 @@ A dmenu script to start, stop and view default report, aggregate or logs of
 - Add dmenu or Rofi options as arguments to this script, e.g.:
     
     watson_dmenu -i -theme watson
+ 
+- Supports $WATSON_DIR if defined

@@ -12,7 +12,7 @@ import locale
 import os
 import shlex
 import sys
-from os.path import expanduser
+from os.path import expanduser, join
 from subprocess import run
 
 ENV = os.environ.copy()
@@ -20,7 +20,7 @@ ENC = locale.getpreferredencoding()
 
 
 def dmenu_cmd(num_lines, prompt=""):
-    """Parse ~/.config/watson/config if it exists and add options to the dmenu
+    """Parse $WATSON_DIR/config if it exists and add options to the dmenu
     command
 
     Args: args - num_lines: number of lines to display
@@ -31,7 +31,10 @@ def dmenu_cmd(num_lines, prompt=""):
     """
     dmenu_command = "dmenu"
     conf = configparser.ConfigParser()
-    conf.read(expanduser("~/.config/watson/config"))
+    if "WATSON_DIR" in ENV:
+        conf.read(join(ENV["WATSON_DIR"], "config"))
+    else:
+        conf.read(expanduser("~/.config/watson/config"))
     try:
         args = conf.items("dmenu")
     except configparser.NoSectionError:
