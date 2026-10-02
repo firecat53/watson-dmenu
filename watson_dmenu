@@ -120,7 +120,7 @@ def start(prompt):
     if prompt != "Watson":
         sel = get_selection(["Yes", "No"], "Stop existing project?")
         if sel == "Yes":
-            run_watson(["config", "options.stop_on_start", "True"])
+            run_watson(["stop"])
         else:
             get_selection([], "New project not started")
             sys.exit()
